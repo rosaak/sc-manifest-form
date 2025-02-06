@@ -3,14 +3,10 @@ import yaml
 from datetime import datetime
 from typing import Dict, Any, List
 import json
-from models import ManifestData, Study, Results, Location, GeoInfo
+from models import ManifestData, Study, Results, Location, GeoInfo, Processing
+from yaml_handler import save_manifest_to_yaml
 
 st.set_page_config(layout="wide")
-
-def save_to_yaml(data: Dict[str, Any], filename: str) -> None:
-    """Save dictionary data to a YAML file"""
-    with open(filename, 'w') as f:
-        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
 
 def parse_cell_types(cell_types_str: str) -> Dict[str, str]:
     """Parse cell type abbreviations from a string format to dictionary"""
@@ -28,6 +24,22 @@ def parse_cell_types(cell_types_str: str) -> Dict[str, str]:
                 abbr, desc = line.split(':', 1)
                 cell_types[abbr.strip()] = desc.strip()
         return cell_types
+
+def validate_mandatory_fields(data: Dict) -> List[str]:
+    """Validate mandatory fields"""
+    errors = []
+    if not data.get('project_id'):
+        errors.append("Project ID is required")
+    
+    study = data.get('study', {})
+    if not study.get('name'):
+        errors.append("Study name is required")
+    if not study.get('title'):
+        errors.append("Study title is required")
+    if not study.get('abstract'):
+        errors.append("Study abstract is required")
+    
+    return errors
 
 def main():
     # Custom CSS
@@ -55,11 +67,9 @@ def main():
                 border-bottom: 2px solid #1E88E5;
                 margin-bottom: 1rem;
             }
-            .stTextInput, .stNumberInput, .stTextArea {
-                background-color: white;
-                border: 1px solid #dee2e6;
-                border-radius: 0.25rem;
-                padding: 0.5rem;
+            .mandatory-field::after {
+                content: " *";
+                color: red;
             }
             .form-container {
                 background-color: #ffffff;
@@ -87,54 +97,80 @@ def main():
         left_col, right_col = st.columns([3, 2])
 
         with left_col:
+            # Project ID Section
+            with st.container():
+                st.markdown("<h3 class='section-header mandatory-field'>🆔 Project ID</h3>", unsafe_allow_html=True)
+                project_id = st.text_input("Project ID", key="project_id",
+                                         help="Format: THB_sc####_GSE######")
+
             # Study Information Section
             with st.container():
                 st.markdown("<h3 class='section-header'>📝 Study Information</h3>", unsafe_allow_html=True)
-                study_name = st.text_input("Study Name", key="study_name", help="Enter the name of your study")
-                study_title = st.text_input("Study Title", key="study_title", help="Enter the title of your study")
-                study_abstract = st.text_area("Study Abstract", key="study_abstract", help="Provide a detailed abstract of your study")
-                pmid = st.text_input("PubMed IDs", key="pmid", help="Enter PubMed IDs separated by commas (e.g., 12345678, 87654321)")
-                app_link = st.text_input("Application Link", key="app_link", help="Enter the application URL if available")
-                year = st.date_input("Study Date", key="year", help="Select the study date")
-                study_note = st.text_area("Study Notes", key="note", help="Add any additional notes about the study")
+                study_name = st.text_input("Study Name", key="study_name", 
+                                         help="Enter the name of your study")
+                study_title = st.text_input("Study Title", key="study_title",
+                                          help="Enter the title of your study")
+                study_abstract = st.text_area("Study Abstract", key="study_abstract",
+                                            help="Provide a detailed abstract of your study")
+                pmid = st.text_input("PubMed IDs", key="pmid",
+                                   help="Enter PubMed IDs separated by commas (e.g., 12345678, 87654321)")
+                app_link = st.text_input("Application Link", key="app_link",
+                                       help="Enter the application URL if available")
+                year = st.date_input("Study Date", key="year",
+                                   help="Select the study date")
+                study_note = st.text_area("Study Notes", key="note",
+                                        help="Add any additional notes about the study")
 
             # Results Information Section
             with st.container():
                 st.markdown("<h3 class='section-header'>📊 Results Information</h3>", unsafe_allow_html=True)
                 col1, col2 = st.columns(2)
                 with col1:
-                    no_of_samples = st.text_input("Number of Samples", key="no_of_samples", help="Enter the total number of samples", value="100")
-                    no_of_cells = st.text_input("Number of Cells", key="no_of_cells", help="Enter the total number of cells", value="10000")
+                    no_of_samples = st.text_input("Number of Samples", key="no_of_samples", 
+                                                value="100",
+                                                help="Enter the total number of samples")
+                    no_of_cells = st.text_input("Number of Cells", key="no_of_cells_after_pp", 
+                                              value="10000",
+                                              help="Enter the total number of cells after preprocessing")
                 with col2:
-                    no_of_clusters = st.text_input("Number of Clusters", key="no_of_clusters", help="Enter the number of clusters identified", value="10")
-                    no_of_genes = st.text_input("Number of Genes", key="no_of_genes", help="Enter the number of genes after preprocessing", value="2000")
-
-            # Location Information Section
-            with st.container():
-                st.markdown("<h3 class='section-header'>📍 Location Information</h3>", unsafe_allow_html=True)
-                azure_location = st.text_input("AnnData Azure Location", key="azure_location",
-                                             help="Enter the Azure storage location for AnnData files")
-                urls = st.text_area("URLs", key="urls",
-                                  help="Enter URLs (one per line) for additional resources")
+                    no_of_clusters = st.text_input("Number of Clusters", key="no_of_clusters", 
+                                                 value="10",
+                                                 help="Enter the number of clusters identified")
+                    no_of_genes = st.text_input("Number of Genes", key="no_of_genes_after_pp", 
+                                              value="2000",
+                                              help="Enter the number of genes after preprocessing")
 
         with right_col:
-            # Project ID Section
-            with st.container():
-                st.markdown("<h3 class='section-header'>🆔 Project ID</h3>", unsafe_allow_html=True)
-                project_id = st.text_input("Project ID", key="project_id",
-                                         help="Format: THB_sc####_GSE######")
-
             # GEO Information Section
             with st.container():
                 st.markdown("<h3 class='section-header'>🔍 GEO Information</h3>", unsafe_allow_html=True)
                 platforms = st.text_input("Platforms", key="platforms",
                                         help="Enter the sequencing platforms used")
                 organisms = st.text_area("Organisms", key="organisms",
+                                       value="Homo sapiens",
                                        help="Enter organisms (one per line)")
                 geoid = st.text_input("GEO ID", key="geoid",
                                     help="Enter the GEO accession number")
                 geo_summary = st.text_area("GEO Summary", key="geo_summary",
                                          help="Provide a summary for GEO submission")
+                urls = st.text_area("URLs", key="urls",
+                                  help="Enter URLs (one per line)")
+                processed_date = st.date_input("Processed Date", key="processed_date",
+                                             help="Select the processing date")
+
+            # Location Information Section
+            with st.container():
+                st.markdown("<h3 class='section-header'>📍 Location Information</h3>", unsafe_allow_html=True)
+                azure_location = st.text_input("AnnData Azure Location", key="azure_location",
+                                             help="Enter the Azure storage location for AnnData files")
+                pp_notebooks = st.text_input("Preprocessing Notebooks", key="pp_notebooks",
+                                           help="Enter the preprocessing notebooks location")
+
+            # Processing Information
+            with st.container():
+                st.markdown("<h3 class='section-header'>⚙️ Processing Information</h3>", unsafe_allow_html=True)
+                processing_description = st.text_area("Processing Description", key="processing_description",
+                                                    help="Describe the processing steps")
 
             # Cell Type Abbreviations Section
             with st.expander("ℹ️ Cell Type Abbreviations", expanded=True):
@@ -166,9 +202,26 @@ def main():
             with st.status("Processing manifest...", expanded=True) as status:
                 try:
                     # Process inputs with better error handling
-                    status.update(label="Validating PubMed IDs...", state="running")
+                    status.update(label="Validating inputs...", state="running")
+                    
+                    # Validate mandatory fields
+                    data = {
+                        "project_id": project_id,
+                        "study": {
+                            "name": study_name,
+                            "title": study_title,
+                            "abstract": study_abstract
+                        }
+                    }
+                    validation_errors = validate_mandatory_fields(data)
+                    if validation_errors:
+                        for error in validation_errors:
+                            st.error(f"❌ {error}")
+                        st.stop()
+
+                    status.update(label="Processing PubMed IDs...", state="running")
                     try:
-                        pmid_list = [int(id.strip()) for id in pmid.split(",")] if pmid.strip() else None
+                        pmid_list = [int(id.strip()) for id in pmid.split(",")] if pmid.strip() else []
                     except ValueError as e:
                         st.error("❌ Error: PubMed IDs must be valid integers separated by commas")
                         st.stop()
@@ -199,39 +252,45 @@ def main():
 
                         results = Results(
                             no_of_samples=no_of_samples,
-                            no_of_cells=no_of_cells,
+                            no_of_cells_after_pp=no_of_cells,
                             no_of_clusters=no_of_clusters,
                             no_of_genes_after_pp=no_of_genes,
-                            processed_date=datetime.now()
+                            cluster_cell_numbers={}
                         )
 
                         location = Location(
                             andata_on_azure=azure_location,
-                            urls=urls_list
+                            pp_notebooks=pp_notebooks
                         )
 
                         geo_info = GeoInfo(
                             platforms=platforms,
                             organisms=organisms_list,
                             geoid=geoid,
-                            geo_summary=geo_summary
+                            geo_summary=geo_summary,
+                            urls=urls_list,
+                            processed_date=processed_date.strftime("%Y-%m-%d")
+                        )
+
+                        processing = Processing(
+                            description=processing_description
                         )
 
                         manifest = ManifestData(
                             project_id=project_id,
                             study=study,
-                            results=results,
+                            geo=geo_info,
                             loc=location,
-                            geo=geo_info
+                            results=results,
+                            processing=processing
                         )
                     except ValueError as e:
                         st.error(f"❌ Validation Error: {str(e)}")
                         st.stop()
 
-                    # Convert to dict and save
-                    data_dict = manifest.model_dump()
+                    # Save to YAML
                     filename = f"manifest_{datetime.now().strftime('%Y%m%d_%H%M%S')}.yaml"
-                    save_to_yaml(data_dict, filename)
+                    save_manifest_to_yaml(manifest.model_dump(), filename)
 
                     # Store YAML content in session state
                     with open(filename, 'r') as f:
