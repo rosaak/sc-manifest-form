@@ -10,30 +10,71 @@ def save_to_yaml(data: Dict[str, Any], filename: str) -> None:
     with open(filename, 'w') as f:
         yaml.dump(data, f, default_flow_style=False, sort_keys=False)
 
+def parse_cell_types(cell_types_str: str) -> Dict[str, str]:
+    """Parse cell type abbreviations from a string format to dictionary"""
+    if not cell_types_str.strip():
+        return {}
+    
+    try:
+        # First try to parse as JSON
+        return json.loads(cell_types_str)
+    except json.JSONDecodeError:
+        # If JSON parsing fails, try parsing line by line format
+        cell_types = {}
+        for line in cell_types_str.strip().split('\n'):
+            if ':' in line:
+                abbr, desc = line.split(':', 1)
+                cell_types[abbr.strip()] = desc.strip()
+        return cell_types
+
 def main():
     st.title("Single Cell Manifest Generator")
     st.write("Fill in the form below to generate your manifest YAML file")
     
     with st.form("manifest_form"):
         # Project ID
-        project_id = st.text_input("Project ID", key="project_id", help="Format: THB_sc####_GSE######")
+        project_id = st.text_input(
+            "Project ID", 
+            key="project_id", 
+            help="Format: THB_sc####_GSE######"
+        )
         
         # Study Section
         st.subheader("Study Information")
         study_name = st.text_input("Study Name", key="study_name")
         study_title = st.text_input("Study Title", key="study_title")
         study_abstract = st.text_area("Study Abstract", key="study_abstract")
-        pmid = st.text_input("PubMed IDs (comma-separated)", key="pmid")
+        pmid = st.text_input(
+            "PubMed IDs", 
+            key="pmid",
+            help="Enter PubMed IDs separated by commas (e.g., 12345678, 87654321)"
+        )
         app_link = st.text_input("Application Link", key="app_link")
         year = st.date_input("Study Date", key="year")
         study_note = st.text_area("Study Notes", key="note")
         
         # Cell Type Abbreviations
         st.subheader("Cell Type Abbreviations")
-        cell_types_json = st.text_area(
-            "Cell Type Abbreviations (JSON format)", 
+        st.markdown("""
+        Enter cell type abbreviations in either format:
+        ```
+        NSC: Neural Stem Cell
+        RG: Radial Glia
+        vRG: Ventricular Radial Glia
+        ```
+        OR as JSON:
+        ```json
+        {
+            "NSC": "Neural Stem Cell",
+            "RG": "Radial Glia",
+            "vRG": "Ventricular Radial Glia"
+        }
+        ```
+        """)
+        cell_types_str = st.text_area(
+            "Cell Type Abbreviations", 
             key="cell_types",
-            help="Enter as JSON, e.g., {\"NSC\": \"Neural Stem Cell\"}"
+            height=200
         )
         
         # Results Section
@@ -46,12 +87,20 @@ def main():
         # Location Section
         st.subheader("Location Information")
         azure_location = st.text_input("AnnData Azure Location", key="azure_location")
-        urls = st.text_area("URLs (one per line)", key="urls")
+        urls = st.text_area(
+            "URLs", 
+            key="urls",
+            help="Enter one URL per line"
+        )
         
         # GEO Information
         st.subheader("GEO Information")
         platforms = st.text_input("Platforms", key="platforms")
-        organisms = st.text_area("Organisms (one per line)", key="organisms")
+        organisms = st.text_area(
+            "Organisms", 
+            key="organisms",
+            help="Enter one organism per line"
+        )
         geoid = st.text_input("GEO ID", key="geoid")
         geo_summary = st.text_area("GEO Summary", key="geo_summary")
         
@@ -59,51 +108,65 @@ def main():
         
         if submitted:
             try:
-                # Process inputs
-                pmid_list = [int(id.strip()) for id in pmid.split(",")] if pmid else None
-                cell_types_dict = json.loads(cell_types_json) if cell_types_json else {}
+                # Process inputs with better error handling
+                try:
+                    pmid_list = [int(id.strip()) for id in pmid.split(",")] if pmid.strip() else None
+                except ValueError as e:
+                    st.error("❌ Error: PubMed IDs must be valid integers separated by commas")
+                    st.stop()
+                
+                try:
+                    cell_types_dict = parse_cell_types(cell_types_str)
+                except Exception as e:
+                    st.error("❌ Error: Invalid cell type abbreviations format. Please check the format and try again.")
+                    st.stop()
+                
                 urls_list = [url.strip() for url in urls.splitlines() if url.strip()]
                 organisms_list = [org.strip() for org in organisms.splitlines() if org.strip()]
                 
                 # Create model instances
-                study = Study(
-                    name=study_name,
-                    title=study_title,
-                    abstract=study_abstract,
-                    pmid=pmid_list,
-                    app_link=app_link,
-                    year=year.strftime("%Y-%m-%d"),
-                    note=study_note,
-                    cell_type_abbreviations=cell_types_dict
-                )
-                
-                results = Results(
-                    no_of_samples=no_of_samples,
-                    no_of_cells=no_of_cells,
-                    no_of_clusters=no_of_clusters,
-                    no_of_genes_after_pp=no_of_genes,
-                    processed_date=datetime.now()
-                )
-                
-                location = Location(
-                    andata_on_azure=azure_location,
-                    urls=urls_list
-                )
-                
-                geo_info = GeoInfo(
-                    platforms=platforms,
-                    organisms=organisms_list,
-                    geoid=geoid,
-                    geo_summary=geo_summary
-                )
-                
-                manifest = ManifestData(
-                    project_id=project_id,
-                    study=study,
-                    results=results,
-                    loc=location,
-                    geo=geo_info
-                )
+                try:
+                    study = Study(
+                        name=study_name,
+                        title=study_title,
+                        abstract=study_abstract,
+                        pmid=pmid_list,
+                        app_link=app_link,
+                        year=year.strftime("%Y-%m-%d"),
+                        note=study_note,
+                        cell_type_abbreviations=cell_types_dict
+                    )
+                    
+                    results = Results(
+                        no_of_samples=no_of_samples,
+                        no_of_cells=no_of_cells,
+                        no_of_clusters=no_of_clusters,
+                        no_of_genes_after_pp=no_of_genes,
+                        processed_date=datetime.now()
+                    )
+                    
+                    location = Location(
+                        andata_on_azure=azure_location,
+                        urls=urls_list
+                    )
+                    
+                    geo_info = GeoInfo(
+                        platforms=platforms,
+                        organisms=organisms_list,
+                        geoid=geoid,
+                        geo_summary=geo_summary
+                    )
+                    
+                    manifest = ManifestData(
+                        project_id=project_id,
+                        study=study,
+                        results=results,
+                        loc=location,
+                        geo=geo_info
+                    )
+                except ValueError as e:
+                    st.error(f"❌ Validation Error: {str(e)}")
+                    st.stop()
                 
                 # Convert to dict and save
                 data_dict = manifest.model_dump()
