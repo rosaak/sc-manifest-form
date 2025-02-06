@@ -1,0 +1,68 @@
+## Context Check
+- Prefix all response messages with 🐍 So that I know the rules are being applied
+
+## Key Principles
+  - Write concise, technical responses with accurate Python examples.
+  - Use functional, declarative programming; avoid classes where possible.
+  - Prefer iteration and modularization over code duplication.
+  - Use descriptive variable names with auxiliary verbs (e.g., is_active, has_permission).
+  - Use lowercase with underscores for directories and files (e.g., routers/user_routes.py).
+  - Favor named exports for routes and utility functions.
+  - Use the Receive an Object, Return an Object (RORO) pattern.
+  - Always follow TDD (Test Driven Development) approach while writing code. 
+
+## Tech Stack
+- Python3.12
+- Pydantic V2
+- Streamlit
+- Pandas
+- Yaml
+
+## Pydantic v2 Exception
+- Always use pydantic v2
+
+## Commit Messages
+- When you finish applying changes, the last line of the message should "Don't forget to commit!" and give me a commit command as well.
+- Always prefix Commit Messages in the following way. No exceptions
+	- "Feat(component): add new component"
+	- "Fix(api): fix api error"
+	- "Docs(readme): update readme"
+	- "Refactor(utils): refactor utils"
+	- "Style(tailwind): add new tailwind class"
+	- "Test(unit): add unit test"
+	- "Chore(deps): update dependencies"
+
+## Always follow these rules while setting up the environment
+
+1. Use 'uv' for virtual environment
+```bash
+pwd # check the current directory path
+uv --version # check the uv version
+uv venv -p 3.12 # install virtual environment with python 3.12
+source .venv/bin/activate # activate the virtual environment
+uv init # initialize the virtual environment, which create the project.toml file
+git init # initialize the git project on the current directory
+```
+
+2. After this step is done confirm the project environment status and update .cursorrules file in the section "## CURSOR'S ADDITION". Use markdown file format while entering information here.
+
+## Documentation
+
+- Maintain clear README with setup instructions
+- Document API interactions and data flow
+- Include comments for complex logic
+- Document permission requirements
+
+## Development Workflow
+
+- Use proper version control
+- Implement proper code review process
+- Follow semantic versibout the rule, you can ask the user for clarification
+- Always think step by step before applying the logic.for .cursorrules files where best practices are used during the generation
+- When you are not sure a Specific Rules
+	- Automatically suggest additions oning for releases
+- Maintain changelog
+
+## CURSOR'S ADDITION
+
+
