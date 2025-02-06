@@ -5,6 +5,8 @@ from typing import Dict, Any, List
 import json
 from models import ManifestData, Study, Results, Location, GeoInfo
 
+st.set_page_config(layout="wide")
+
 def save_to_yaml(data: Dict[str, Any], filename: str) -> None:
     """Save dictionary data to a YAML file"""
     with open(filename, 'w') as f:
