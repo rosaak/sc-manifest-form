@@ -31,6 +31,12 @@ def main():
     st.title("Single Cell Manifest Generator")
     st.write("Fill in the form below to generate your manifest YAML file")
     
+    # Initialize session state for storing generated YAML
+    if 'yaml_content' not in st.session_state:
+        st.session_state.yaml_content = None
+    if 'yaml_filename' not in st.session_state:
+        st.session_state.yaml_filename = None
+    
     with st.form("manifest_form"):
         # Project ID
         project_id = st.text_input(
@@ -175,24 +181,27 @@ def main():
                 filename = f"manifest_{datetime.now().strftime('%Y%m%d_%H%M%S')}.yaml"
                 save_to_yaml(data_dict, filename)
                 
+                # Store YAML content in session state
+                with open(filename, 'r') as f:
+                    st.session_state.yaml_content = f.read()
+                    st.session_state.yaml_filename = filename
+                
                 # Show success message
                 st.success(f"✅ Manifest saved successfully as {filename}")
                 
-                # Display the YAML content
-                with open(filename, 'r') as f:
-                    yaml_content = f.read()
-                st.code(yaml_content, language='yaml')
-                
-                # Add download button
-                st.download_button(
-                    label="Download YAML file",
-                    data=yaml_content,
-                    file_name=filename,
-                    mime="application/x-yaml"
-                )
-                
             except Exception as e:
                 st.error(f"❌ Error: {str(e)}")
+    
+    # Display YAML content and download button outside the form
+    if st.session_state.yaml_content is not None:
+        st.code(st.session_state.yaml_content, language='yaml')
+        
+        st.download_button(
+            label="Download YAML file",
+            data=st.session_state.yaml_content,
+            file_name=st.session_state.yaml_filename,
+            mime="application/x-yaml"
+        )
 
 if __name__ == "__main__":
     main() 

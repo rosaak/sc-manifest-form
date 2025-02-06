@@ -1,0 +1,88 @@
+project_id: THB_sc0022_GSE226451
+study:
+  name: neural_fate_in_macaque_telencephalon_Micali2023
+  title: Molecular programs of regional specification and neural stem cell fate progression
+    in macaque telencephalon
+  abstract: During early telencephalic development, intricate processes of regional
+    patterning and neural stem cell (NSC) fate specification take place. However,
+    our understanding of these processes in primates, including both conserved and
+    species-specific features, remains limited. Here, we profiled 761,529 single-cell
+    transcriptomes from multiple regions of the prenatal macaque telencephalon. We
+    deciphered the molecular programs of the early organizing centers and their cross-talk
+    with NSCs, revealing primate-biased galanin-like peptide (GALP) signaling in the
+    antero-ventral telencephalon. Regional transcriptomic variations were observed
+    along the frontotemporal axis during early stages of neocortical NSC progression
+    and in neurons and astrocytes. Additionally, we found that genes associated with
+    neuropsychiatric disorders and brain cancer risk might play critical roles in
+    the early telencephalic organizers and during NSC progression.
+  pmid:
+  - 37824652
+  app_link: ''
+  year: '2023-10-03'
+  note: "- authors used louvain, but we used leiden clustering. \n- started from h5ad\
+    \ on lab github found in the publication.\n- I downloaded the h5ad and did this\
+    \ modifications\n"
+  cell_type_abbreviations:
+    '''NSC''': '''Neural Stem Cell'','
+    '''RG''': '''Radial Glia'','
+    '''vRG''': '''Ventricular Radial Glia'','
+    '''oRG''': '''Outer Radial Glia'','
+    '''tRG''': '''Truncated Radial Glia'','
+    '''NESC''': '''Neuroepithelial Stem Cell'','
+    '''GE''': '''Ganglionic Eminence'','
+    '''PFC''': '''Prefrontal Cortex'','
+    '''M1C''': '''Primary Motor Cortex'','
+    '''V1C''': '''Primary Visual Cortex'','
+    '''UMAP''': '''Uniform Manifold Approximation and Projection'','
+    '''L-R''': '''Ligand-Receptor'','
+    '''GALP''': '''Galanin-Like Peptide'','
+    '''IPCs''': '''Intermediate Precursor Cells'','
+    '''scRNA-seq''': '''Single-Cell RNA Sequencing'','
+    '''PCs''': '''Patterning Centers'','
+    '''ASD''': '''Autism Spectrum Disorder'','
+    '''SCZ''': '''Schizophrenia'','
+    '''BD''': '''Bipolar Disorder'','
+    '''ADHD''': '''Attention-Deficit Hyperactivity Disorder'','
+results:
+  no_of_samples: 1
+  no_of_cells: 1
+  no_of_clusters: 1
+  cluster_cell_numbers: {}
+  no_of_genes_after_pp: 1
+  processed_date: 2025-02-06 14:21:14.458174
+loc:
+  andata_on_azure: notebooks/THB_scrnaseq_0022_GSE226451
+  urls:
+  - http://resources.sestanlab.org/devmacaquebrain,
+  - http://resources.sestanlab.org/devmacaquebrain2
+geo:
+  platforms: 10x Illumina
+  organisms:
+  - Macaca mulatta
+  geoid: GSE226451
+  geo_summary: 'During early telencephalic development, intricate processes of regional
+    patterning and neural stem cell (NSC) fate specification take place. However,
+    our understanding of these processes in primates, including both conserved and
+    species-specific features, remains limited. Here, we profiled 761,529 single-cell
+    transcriptomes from multiple regions of the prenatal macaque telencephalon. We
+    deciphered the molecular programs of the early organizing centers and their cross-talk
+    with NSCs, revealing primatebiased galanin-like peptide (GALP) signaling in the
+    antero-ventral telencephalon. Regional transcriptomic variations were observed
+    along the fronto-temporal axis during early stages of neocortical NSC progression
+    and in neurons and astrocytes. Additionally, we found that genes associated with
+    neuropsychiatric disorders and brain cancer risk might play critical roles in
+    the early telencephalic organizers and during NSC progression. Employing timed-pregnant
+    rhesus macaques, we dissected multiple prospective regions of the prenatal telencephalon,
+    from embryonic day (E)37, prior to neurogenesis, up to mid-gliogenesis at E110
+    (12). Anterior (A)/frontal (FR), dorso-lateral (DL)/putative motor-somatosensory
+    (MS), putative temporal, posterior (P)/occipital (OC) areas, and ganglionic eminence
+    (GE) were recognized at the earliest stages (E37-E78). Then, at the latest stages
+    (E93-E110), we collected the cortical wall of up to 13 regions of the neocortex,
+    including multiple sub-areas from the prefrontal (dorsolateral: DFC; orbital:
+    OFC; medial: MFC; ventrolateral: VFC), primary motor (M1C), parietal (primary
+    somatosensory: S1C; inferior parietal: IPC; posterior cingulate: PCC), insula
+    (Ins), temporal (inferior: ITC; superior: STC; primary auditory: A1C), occipital
+    (primary visual: V1), and three regions from GE (medial: MGE; lateral: LGE; caudal:
+    CGE) (24). Eighty-two samples categorized were processed for scRNA-seq. After
+    stringent quality control, a total of 761,529 high-quality individual cells were
+    obtained'
