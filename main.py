@@ -119,13 +119,13 @@ def main():
             # Study Information Section
             with st.container():
                 st.markdown("<h3 class='section-header'>📝 Study Information</h3>", unsafe_allow_html=True)
-                study_name = st.text_input("Study Name", key="study_name",  help="Enter the name of your study")
-                study_title = st.text_input("Study Title", key="study_title", help="Enter the title of your study")
-                study_abstract = st.text_area("Study Abstract", key="study_abstract", help="Provide a detailed abstract of your study")
+                study_name = st.text_input("Study Name", key="study_name",  help="Enter the name of your study; a short abbreviation is recommended")
+                study_title = st.text_input("Study Title", key="study_title", help="Enter the title of your study; publication title.")
+                study_abstract = st.text_area("Study Abstract", key="study_abstract", help="Pubmed abstract", height=400)
                 pmid = st.text_input("PubMed IDs", key="pmid", help="Enter PubMed IDs separated by commas (e.g., 12345678, 87654321)")
-                app_link = st.text_input("Application Link", key="app_link", help="Enter the application URL if available")
-                year = st.date_input("Study Date", key="year", help="Select the study date")
-                study_note = st.text_area("Study Notes", key="note", help="Add any additional notes about the study")
+                app_link = st.text_input("Application Link", key="app_link", help="Enter the application URL if available; add multiple if available")
+                year = st.date_input("Study Date", key="year", help="Select the study date in YYYY-MM-DD format")
+                study_note = st.text_area("Study Notes", key="note", help="Add any additional notes about the study", height=300)
 
             # Results Information Section
             with st.container():
@@ -137,6 +137,7 @@ def main():
                 with col2:
                     no_of_clusters = st.text_input("Number of Clusters", key="no_of_clusters", value="10", help="Enter the number of clusters identified")
                     no_of_genes = st.text_input("Number of Genes", key="no_of_genes_after_pp", value="2000", help="Enter the number of genes after preprocessing")
+                cluster_cell_numbers = st.text_input("Cluster Cell Numbers", key="cluster_cell_numbers", value="", help="Enter the number of cells in each cluster separated by commas")
 
         with right_col:
             # GEO Information Section
@@ -185,7 +186,7 @@ def main():
                 )
 
         # Submit Button
-        submitted = st.form_submit_button("🚀 Generate Manifest")
+        submitted = st.form_submit_button("🚀 Generate Manifest", use_container_width=True, type='primary')
 
         if submitted:
             with st.status("Processing manifest...", expanded=True) as status:
