@@ -32,13 +32,17 @@ def clean_dict_strings(d: dict) -> dict:
     """Clean dictionary strings and handle special characters"""
     clean = {}
     for k, v in d.items():
-        clean_key = str(k).strip("'\"")
+        # Clean the key (remove quotes and extra spaces)
+        clean_key = str(k).strip().strip("'\"")
+        
+        # Clean the value based on its type
         if isinstance(v, str):
-            clean_value = v.strip("'\"").rstrip(",")
+            clean_value = v.strip().strip("'\"").rstrip(",")
         elif isinstance(v, dict):
             clean_value = clean_dict_strings(v)
         else:
             clean_value = v
+            
         clean[clean_key] = clean_value
     return clean
 
@@ -53,7 +57,7 @@ def format_manifest_data(data: Dict) -> Dict:
     formatted['geo']['geo_summary'] = format_string_for_yaml(data['geo']['geo_summary'])
     formatted['processing']['description'] = format_string_for_yaml(data['processing']['description'])
     
-    # Handle cell_type_abbreviations
+    # Handle cell_type_abbreviations with special care
     if isinstance(data['study']['cell_type_abbreviations'], dict):
         formatted['study']['cell_type_abbreviations'] = clean_dict_strings(
             data['study']['cell_type_abbreviations']

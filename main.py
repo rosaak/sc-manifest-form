@@ -9,21 +9,39 @@ from yaml_handler import save_manifest_to_yaml
 st.set_page_config(layout="wide")
 
 def parse_cell_types(cell_types_str: str) -> Dict[str, str]:
-    """Parse cell type abbreviations from a string format to dictionary"""
+    """Parse cell type abbreviations from string format to dictionary"""
     if not cell_types_str.strip():
         return {}
     
-    try:
-        # First try to parse as JSON
-        return json.loads(cell_types_str)
-    except json.JSONDecodeError:
-        # If JSON parsing fails, try parsing line by line format
-        cell_types = {}
-        for line in cell_types_str.strip().split('\n'):
-            if ':' in line:
-                abbr, desc = line.split(':', 1)
-                cell_types[abbr.strip()] = desc.strip()
-        return cell_types
+    cell_types = {}
+    lines = cell_types_str.strip().split('\n')
+    
+    for line_number, line in enumerate(lines, 1):
+        # Skip empty lines
+        if not line.strip():
+            continue
+        
+        # Validate line format
+        if ':' not in line:
+            raise ValueError(f"Line {line_number}: Missing colon separator")
+        
+        # Split and clean
+        abbr, desc = line.split(':', 1)
+        abbr = abbr.strip()
+        desc = desc.strip()
+        
+        # Validate content
+        if not abbr:
+            raise ValueError(f"Line {line_number}: Abbreviation is missing")
+        if not desc:
+            raise ValueError(f"Line {line_number}: Description is missing")
+        if any(c in abbr for c in '"\'{}[]|>&*?!%@`'):
+            raise ValueError(f"Line {line_number}: Abbreviation contains invalid characters")
+        
+        # Store in dictionary
+        cell_types[abbr] = desc
+    
+    return cell_types
 
 def validate_mandatory_fields(data: Dict) -> List[str]:
     """Validate mandatory fields"""
@@ -100,100 +118,75 @@ def main():
             # Project ID Section
             with st.container():
                 st.markdown("<h3 class='section-header mandatory-field'>🆔 Project ID</h3>", unsafe_allow_html=True)
-                project_id = st.text_input("Project ID", key="project_id",
-                                         help="Format: THB_sc####_GSE######")
+                project_id = st.text_input("Project ID", key="project_id", help="Format: THB_sc####_GSE######")
 
             # Study Information Section
             with st.container():
                 st.markdown("<h3 class='section-header'>📝 Study Information</h3>", unsafe_allow_html=True)
-                study_name = st.text_input("Study Name", key="study_name", 
-                                         help="Enter the name of your study")
-                study_title = st.text_input("Study Title", key="study_title",
-                                          help="Enter the title of your study")
-                study_abstract = st.text_area("Study Abstract", key="study_abstract",
-                                            help="Provide a detailed abstract of your study")
-                pmid = st.text_input("PubMed IDs", key="pmid",
-                                   help="Enter PubMed IDs separated by commas (e.g., 12345678, 87654321)")
-                app_link = st.text_input("Application Link", key="app_link",
-                                       help="Enter the application URL if available")
-                year = st.date_input("Study Date", key="year",
-                                   help="Select the study date")
-                study_note = st.text_area("Study Notes", key="note",
-                                        help="Add any additional notes about the study")
+                study_name = st.text_input("Study Name", key="study_name",  help="Enter the name of your study")
+                study_title = st.text_input("Study Title", key="study_title", help="Enter the title of your study")
+                study_abstract = st.text_area("Study Abstract", key="study_abstract", help="Provide a detailed abstract of your study")
+                pmid = st.text_input("PubMed IDs", key="pmid", help="Enter PubMed IDs separated by commas (e.g., 12345678, 87654321)")
+                app_link = st.text_input("Application Link", key="app_link", help="Enter the application URL if available")
+                year = st.date_input("Study Date", key="year", help="Select the study date")
+                study_note = st.text_area("Study Notes", key="note", help="Add any additional notes about the study")
 
             # Results Information Section
             with st.container():
                 st.markdown("<h3 class='section-header'>📊 Results Information</h3>", unsafe_allow_html=True)
                 col1, col2 = st.columns(2)
                 with col1:
-                    no_of_samples = st.text_input("Number of Samples", key="no_of_samples", 
-                                                value="100",
-                                                help="Enter the total number of samples")
-                    no_of_cells = st.text_input("Number of Cells", key="no_of_cells_after_pp", 
-                                              value="10000",
-                                              help="Enter the total number of cells after preprocessing")
+                    no_of_samples = st.text_input("Number of Samples", key="no_of_samples",  value="100", help="Enter the total number of samples")
+                    no_of_cells = st.text_input("Number of Cells", key="no_of_cells_after_pp", value="10000", help="Enter the total number of cells after preprocessing")
                 with col2:
-                    no_of_clusters = st.text_input("Number of Clusters", key="no_of_clusters", 
-                                                 value="10",
-                                                 help="Enter the number of clusters identified")
-                    no_of_genes = st.text_input("Number of Genes", key="no_of_genes_after_pp", 
-                                              value="2000",
-                                              help="Enter the number of genes after preprocessing")
+                    no_of_clusters = st.text_input("Number of Clusters", key="no_of_clusters", value="10", help="Enter the number of clusters identified")
+                    no_of_genes = st.text_input("Number of Genes", key="no_of_genes_after_pp", value="2000", help="Enter the number of genes after preprocessing")
 
         with right_col:
             # GEO Information Section
             with st.container():
                 st.markdown("<h3 class='section-header'>🔍 GEO Information</h3>", unsafe_allow_html=True)
-                platforms = st.text_input("Platforms", key="platforms",
-                                        help="Enter the sequencing platforms used")
-                organisms = st.text_area("Organisms", key="organisms",
-                                       value="Homo sapiens",
-                                       help="Enter organisms (one per line)")
-                geoid = st.text_input("GEO ID", key="geoid",
-                                    help="Enter the GEO accession number")
-                geo_summary = st.text_area("GEO Summary", key="geo_summary",
-                                         help="Provide a summary for GEO submission")
-                urls = st.text_area("URLs", key="urls",
-                                  help="Enter URLs (one per line)")
-                processed_date = st.date_input("Processed Date", key="processed_date",
-                                             help="Select the processing date")
+                platforms = st.text_input("Platforms", key="platforms", help="Enter the sequencing platforms used")
+                organisms = st.text_area("Organisms", key="organisms", value="Homo sapiens", help="Enter organisms (one per line)")
+                geoid = st.text_input("GEO ID", key="geoid", help="Enter the GEO accession number")
+                geo_summary = st.text_area("GEO Summary", key="geo_summary", help="Provide a summary for GEO submission")
+                urls = st.text_area("URLs", key="urls", help="Enter URLs (one per line)")
+                processed_date = st.date_input("Processed Date", key="processed_date", help="Select the processing date")
 
             # Location Information Section
             with st.container():
                 st.markdown("<h3 class='section-header'>📍 Location Information</h3>", unsafe_allow_html=True)
-                azure_location = st.text_input("AnnData Azure Location", key="azure_location",
-                                             help="Enter the Azure storage location for AnnData files")
-                pp_notebooks = st.text_input("Preprocessing Notebooks", key="pp_notebooks",
-                                           help="Enter the preprocessing notebooks location")
+                azure_location = st.text_input("AnnData Azure Location", key="azure_location", help="Enter the Azure storage location for AnnData files")
+                pp_notebooks = st.text_input("Preprocessing Notebooks", key="pp_notebooks", help="Enter the preprocessing notebooks location")
 
             # Processing Information
             with st.container():
                 st.markdown("<h3 class='section-header'>⚙️ Processing Information</h3>", unsafe_allow_html=True)
-                processing_description = st.text_area("Processing Description", key="processing_description",
-                                                    help="Describe the processing steps")
+                processing_description = st.text_area("Processing Description", key="processing_description", help="Describe the processing steps")
 
             # Cell Type Abbreviations Section
             with st.expander("ℹ️ Cell Type Abbreviations", expanded=True):
                 st.markdown("""
-                Enter cell type abbreviations in either format:
+                Enter cell type abbreviations in the following format (one per line):
                 ```
                 NSC: Neural Stem Cell
                 RG: Radial Glia
                 vRG: Ventricular Radial Glia
                 ```
-                OR as JSON:
-                ```json
-                {
-                    "NSC": "Neural Stem Cell",
-                    "RG": "Radial Glia",
-                    "vRG": "Ventricular Radial Glia"
-                }
-                ```
+                
+                Guidelines:
+                - One abbreviation per line
+                - Use colon (:) as separator
+                - Both abbreviation and description are required
+                - No special characters in abbreviations
                 """)
-                cell_types_str = st.text_area("Cell Type Abbreviations", 
-                                            key="cell_types",
-                                            height=200,
-                                            help="Enter cell type abbreviations in either format shown above")
+                cell_types_str = st.text_area(
+                    "Cell Type Abbreviations",
+                    key="cell_types",
+                    height=200,
+                    placeholder="NSC: Neural Stem Cell\nRG: Radial Glia\nvRG: Ventricular Radial Glia",
+                    help="Enter cell type abbreviations, one per line with colon separator"
+                )
 
         # Submit Button
         submitted = st.form_submit_button("🚀 Generate Manifest")
@@ -306,7 +299,7 @@ def main():
 
     # Display YAML content and download button outside the form
     if st.session_state.yaml_content is not None:
-        with st.expander("🎉 Generated Manifest", expanded=True):
+        with st.expander("## 🎉 Generated Manifest", expanded=True):
             st.code(st.session_state.yaml_content, language='yaml')
             st.download_button(
                 label="📥 Download YAML file",
