@@ -161,7 +161,7 @@ def main():
                 organisms = st.text_area("Organisms", key="organisms", value="Homo sapiens", help="Enter organisms (one per line)")
                 geoid = st.text_input("GEO ID", key="geoid", help="Enter the GEO accession number")
                 geo_summary = st.text_area("GEO Summary", key="geo_summary", help="Provide a summary for GEO submission", height=180)
-                urls = st.text_area("URLs", key="urls", help="Enter URLs (one per line)", height=50)
+                urls = st.text_area("URLs", key="urls", help="Enter URLs (one per line)")
                 processed_date = st.date_input("Processed Date", key="processed_date", help="Select the processing date")
 
             # Location Information Section
