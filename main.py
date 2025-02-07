@@ -1,12 +1,17 @@
 import streamlit as st
-import yaml
 from datetime import datetime
 from typing import Dict, Any, List
-import json
 from models import ManifestData, Study, Results, Location, GeoInfo, Processing
 from yaml_handler import save_manifest_to_yaml
+import os
+import glob
 
 st.set_page_config(layout="wide")
+
+def remove_old_manifests():
+    """Remove all previously generated manifest YAML files."""
+    for file_path in glob.glob("manifest_*.yaml"):
+        os.remove(file_path)
 
 def parse_cell_types(cell_types_str: str) -> Dict[str, str]:
     """Parse cell type abbreviations from string format to dictionary"""
@@ -324,4 +329,5 @@ def main():
     st.markdown("<div class='footer'><h6>Trailhead Biosystems Inc. © 2025</h6></div>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
-    main() 
+    remove_old_manifests()
+    main()
