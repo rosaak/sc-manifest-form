@@ -85,10 +85,6 @@ def main():
                 border-bottom: 2px solid #1E88E5;
                 margin-bottom: 1rem;
             }
-            .mandatory-field::after {
-                content: " *";
-                color: red;
-            }
             .form-container {
                 background-color: #ffffff;
                 padding: 2rem;
@@ -117,7 +113,7 @@ def main():
         with left_col:
             # Project ID Section
             with st.container():
-                st.markdown("<h3 class='section-header mandatory-field'>🆔 Project ID</h3>", unsafe_allow_html=True)
+                st.markdown("<h3 class='section-header'>🆔 Project ID</h3>", unsafe_allow_html=True)
                 project_id = st.text_input("Project ID", key="project_id", help="Format: THB_sc####_GSE######")
 
             # Study Information Section
@@ -173,19 +169,19 @@ def main():
                 RG: Radial Glia
                 vRG: Ventricular Radial Glia
                 ```
-                
-                Guidelines:
-                - One abbreviation per line
-                - Use colon (:) as separator
-                - Both abbreviation and description are required
-                - No special characters in abbreviations
                 """)
+                
                 cell_types_str = st.text_area(
                     "Cell Type Abbreviations",
                     key="cell_types",
                     height=200,
                     placeholder="NSC: Neural Stem Cell\nRG: Radial Glia\nvRG: Ventricular Radial Glia",
-                    help="Enter cell type abbreviations, one per line with colon separator"
+                    help="Enter cell type abbreviations, one per line with colon separator\n\n"
+                         "Guidelines:\n"
+                         "• One abbreviation per line\n"
+                         "• Use colon (:) as separator\n"
+                         "• Both abbreviation and description are required\n"
+                         "• No special characters in abbreviations"
                 )
 
         # Submit Button
