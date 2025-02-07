@@ -65,7 +65,8 @@ def main():
         <style>
             .title {
                 text-align: center;
-                padding: 1rem;
+                padding: 0.5rem;
+                font-size: 4rem;
                 color: #1E88E5;
             }
             .subtitle {
@@ -90,6 +91,19 @@ def main():
                 padding: 2rem;
                 border-radius: 0.5rem;
                 box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .footer {
+                position: fixed;
+                left: 0;
+                bottom: 0;
+                width: 100%;
+                text-align: center;
+                padding: 1rem;
+                background-color: white;
+                color: grey;
+                opacity: 0.75;
+                font-size: 0.4rem;
+                border-top: 1px solid #eee;
             }
         </style>
     """, unsafe_allow_html=True)
@@ -146,8 +160,8 @@ def main():
                 platforms = st.text_input("Platforms", key="platforms", help="Enter the sequencing platforms used")
                 organisms = st.text_area("Organisms", key="organisms", value="Homo sapiens", help="Enter organisms (one per line)")
                 geoid = st.text_input("GEO ID", key="geoid", help="Enter the GEO accession number")
-                geo_summary = st.text_area("GEO Summary", key="geo_summary", help="Provide a summary for GEO submission")
-                urls = st.text_area("URLs", key="urls", help="Enter URLs (one per line)")
+                geo_summary = st.text_area("GEO Summary", key="geo_summary", help="Provide a summary for GEO submission", height=180)
+                urls = st.text_area("URLs", key="urls", help="Enter URLs (one per line)", height=50)
                 processed_date = st.date_input("Processed Date", key="processed_date", help="Select the processing date")
 
             # Location Information Section
@@ -305,6 +319,9 @@ def main():
                 mime="application/x-yaml",
                 use_container_width=True
             )
+    
+    # Footer
+    st.markdown("<div class='footer'><h6>Trailhead Biosystems Inc. © 2025</h6></div>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main() 
