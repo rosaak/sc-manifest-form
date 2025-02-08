@@ -68,6 +68,48 @@ def main():
     # Custom CSS
     st.markdown("""
         <style>
+                
+            /* Set the base background color and pattern for the entire app  #ECEDEF*/
+            .stApp {
+                background-color: white !important;
+                background-image: radial-gradient(circle, rgba(128, 128, 128, 0.8) 1px, transparent 1px) !important;
+                background-size: 25px 25px !important;
+                background-position: 0 0 !important;
+            }
+
+            /* Hide the deploy button */
+            .reportview-container {
+                margin-top: 10em;
+                
+            }
+            .st-emotion-cache-1now2ym.ezrtsby2{
+                opacity: 0;
+                }
+            
+            .st-emotion-cache-1now2ym.ezrtsby2{
+                position: fixed;
+                top: 0px;
+                left: 0px;
+                right: 0px;
+                height: 2.875rem;
+                background: white;
+                outline: none;
+                z-index: 999990;
+                display: block;
+                opacity: 0;
+            }
+            #MainMenu {visibility: hidden;}
+            .stDeployButton {display:none;}
+            footer {visibility: hidden;}
+            #stDecoration {display:none;}
+                
+            /*    #ECEDEF */
+            /* Main background with dots */
+            .main, [data-testid="stSidebar"] {
+                background-color: white!important;
+                background-image: radial-gradient(circle, rgba(128, 128, 128, 0.4) 1px, transparent 1px) !important;
+                background-size: 25px 25px !important;
+            }
             .title {
                 text-align: center;
                 padding: 0.5rem;
@@ -79,6 +121,13 @@ def main():
                 color: #666;
                 padding-bottom: 1rem;
             }
+            /* Headers */
+            h1, h2, h3 {
+                color: #1a1f36;
+                font-weight: 600;
+                text-align: center !important;
+            }
+
             .stContainer {
                 background-color: #f8f9fa;
                 padding: 1rem;
@@ -115,7 +164,7 @@ def main():
 
     # Title Section
     st.markdown("<h1 class='title'>Single Cell Manifest Generator</h1>", unsafe_allow_html=True)
-    st.caption("<p class='subtitle'>Fill in the form below to generate your manifest YAML file</p>", unsafe_allow_html=True)
+    st.markdown("<p class='subtitle'>Fill in the form below to generate your manifest YAML file</p>", unsafe_allow_html=True)
     st.divider()
 
     # Initialize session state

@@ -1,2 +1,7 @@
 [theme]
 base = "light"
+primaryColor = "#1E88E5"
+backgroundColor = "white"
+
+[client]
+toobarMode ="minimal"
